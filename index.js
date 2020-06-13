@@ -2,7 +2,8 @@
 const fs = require("fs");
 const util = require("util");
 const inquirer = require("inquirer");
-const generateHTML = require('./utils/generateMarkdown');
+const generateMarkdown = require('./utils/generateMarkdown');
+const writeFileAsync = util.promisify(fs.writeFile);
 
 // array of questions for user
 const questions = [
@@ -15,7 +16,7 @@ const questions = [
     {
         type: 'input',
         message: 'Enter a description.',
-        name: 'decription'
+        name: 'description'
     },
     {
         type: 'input',
@@ -38,18 +39,14 @@ const questions = [
         name: 'tests'
     },
     {
-        type: 'select',
+        type: 'list',
         name: 'license',
         message: 'Choose a license.',
         choices: [
-            { title: 'Apache 2.0 License' },
-            { title: 'Boost Software License 1.0' },
-            { title: 'BSD 3-Claurse License' },
-            { title: 'BSD 2-Clause License' },
-            { title: 'Creative Commons: CC0' },
-            { title: 'GNU GPL v3' },
+            "Apache",
+            "MIT",
+            "ISC"
         ],
-        initial: 1
     },
     {
         type: 'input',
@@ -65,23 +62,13 @@ const questions = [
 
 ];
 
-
-
-// function to write README file
-function writeToFile(fileName, data) {
-    return fs.writeFile(path.join(process.cwd(), fileName), data)
-};
-
-// function to initialize program
 function init() {
     inquirer
-    .prompt (questions)
-    .then((data) => {
-        writeToFile("README.md", generateHTML({...data}))
-    }).catch((err) => {
-        console.log(err);
-    })
+        .prompt(questions)
+        .then((data) => {
+            writeFileAsync("README.md", generateMarkdown({ ...data }))
+        }).catch((err) => {
+            console.log(err);
+        })
 }
-
-// function call to initialize program
 init();
